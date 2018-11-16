@@ -1,6 +1,7 @@
 import sixtracktools
 import pysixtrack
 import pysixtrack.helpers as hp
+import pickle
 
 
 import numpy as np
@@ -39,12 +40,19 @@ print('x px y py sigma delta:', guess)
 # Check that closed orbit is closed
 pstart = closed_orbit[0].copy()
 pstart_st = pysixtrack.Particles(**sixdump_CO[0].get_minimal_beam())
+
+with open('particle_on_CO.pkl', 'wb') as fid:
+    pickle.dump(sixdump_CO[0].get_minimal_beam(), fid)
+
 print('STsigma, Sigma, Stdelta, delta, Stpx, px')
 for iturn in range(10):
     ring.track(pstart)
     ring.track(pstart_st)
     print('%e, %e, %e, %e, %e, %e' % (pstart_st.sigma, pstart.sigma,
                                       pstart_st.delta, pstart.delta, pstart_st.px, pstart.px))
+
+
+
 
 import matplotlib.pyplot as plt
 
@@ -130,7 +138,7 @@ for bb, ibb in zip(listBB6D, ind_BB6D):
 
     print('Again kick', ptemp.x - ptempin.x)
 
-import pickle
+
 # lineobj=pysixtrack.Line(elememts=[elem for label,elem_type,elem in line])
 with open('line.pkl', 'wb') as fid:
     pickle.dump(line, fid)
