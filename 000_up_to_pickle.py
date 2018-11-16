@@ -131,12 +131,12 @@ for bb, ibb in zip(listBB6D, ind_BB6D):
     print('Again kick', ptemp.x - ptempin.x)
 
 import pickle
-lineobj=pysixtrack.Line(elememts=[elem for label,elem_type,elem in line])
+# lineobj=pysixtrack.Line(elememts=[elem for label,elem_type,elem in line])
 with open('line.pkl', 'wb') as fid:
     pickle.dump(line, fid)
 
-with open('lineovj.pkl', 'wb') as fid:
-    pickle.dump(lineobj, fid)
+# with open('lineovj.pkl', 'wb') as fid:
+#     pickle.dump(lineobj, fid)
 
 
 # Compare tracking results
