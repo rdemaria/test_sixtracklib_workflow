@@ -6,6 +6,9 @@ import helpers as hp
 import footprint
 import matplotlib.pyplot as plt
 
+track_with = 'PySixtrack'
+track_with = 'Sixtrack'
+
 n_turns = 100
 
 with open('line.pkl', 'rb') as fid:
@@ -25,12 +28,19 @@ Qxy_fp = np.zeros_like(xy_norm)
 for ii in range(xy_norm.shape[0]):
     for jj in range(xy_norm.shape[1]):
         print('FP track %d/%d (%d/%d)'%(ii, xy_norm.shape[0], jj, xy_norm.shape[1]))
-        part = pysixtrack.Particles(**partCO)
 
-        part.px += DpxDpy_wrt_CO[ii, jj, 0]
-        part.py += DpxDpy_wrt_CO[ii, jj, 1]
+        if track_with == 'PySixtrack':
+            part = pysixtrack.Particles(**partCO)
 
-        x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt = hp.track_particle(line, part, n_turns)
+            part.px += DpxDpy_wrt_CO[ii, jj, 0]
+            part.py += DpxDpy_wrt_CO[ii, jj, 1]
+
+            x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt = hp.track_particle_pysixtrack(line, part, n_turns)
+        elif track_with == 'Sixtrack':
+            x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt = hp.track_particle_sixtrack(
+                    0., DpxDpy_wrt_CO[ii, jj, 0], 0., DpxDpy_wrt_CO[ii, jj, 1], 0., 0., n_turns)
+        else:
+            raise ValueError('What?!')
 
         qx = NAFFlib.get_tune(x_tbt)
         qy = NAFFlib.get_tune(y_tbt)
