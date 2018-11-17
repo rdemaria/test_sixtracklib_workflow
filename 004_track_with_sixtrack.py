@@ -17,6 +17,8 @@ n_turns = 100
 if not os.path.exists(wfold):
     os.mkdir(wfold)
 
+os.system('cp fort.* %s'%wfold)
+
 with open('fort.3', 'r') as fid:
     lines_f3 = fid.readlines()
 
@@ -52,17 +54,32 @@ temp_list = lines_f3[i_start_tk + 1].split(' ')
 temp_list[0] = '%d'%n_turns
 lines_f3[i_start_tk + 1] = ' '.join(temp_list)
 
+#Setup turn-by-turn dump
+i_start_dp = None
+for ii, ll in enumerate(lines_f3):
+    if ll.startswith('DUMP'):
+        i_start_dp = ii
+        break
+
+lines_f3[i_start_dp + 1] = 'StartDUMP 1 664 101 dumtemp.dat\n'
+
 with open(wfold + '/fort.3', 'w') as fid:
     fid.writelines(lines_f3)
 
-
-prrrr
+os.system('./runsix_trackfun')
 
 # Load sixtrack tracking data
-sixdump_all = sixtracktools.SixDump101('res_part/dumpg.dat')
+sixdump_all = sixtracktools.SixDump101('%s/dumtemp.dat'%wfold)
 
 sixdump_CO = sixdump_all[::2]   # Particle on CO
 sixdump_part = sixdump_all[1::2]  #
+
+x_tbt = sixdump_part.x
+px_tbt = sixdump_part.px
+y_tbt = sixdump_part.y
+py_tbt = sixdump_part.py
+sigma_tbt = sixdump_part.sigma
+delta_tbt = sixdump_part.delta
 
 plt.close('all')
 fig1 = plt.figure(1)
