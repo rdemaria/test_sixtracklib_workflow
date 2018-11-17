@@ -47,4 +47,28 @@ for ii in range(xy_norm.shape[0]):
         DpxDpy_wrt_CO[ii, jj, 1] = xy_norm[ii, jj, 1] * np.sqrt(epsn_y / part.beta0 / part.gamma0 / beta_y)
 
 with open('DpxDpy_for_footprint.pkl', 'wb') as fid:
-    pickle.dump(DpxDpy_wrt_CO, fid)
+    pickle.dump({
+                'DpxDpy_wrt_CO': DpxDpy_wrt_CO,
+                'xy_norm': xy_norm,
+                }, fid)
+
+import matplotlib.pyplot as plt
+plt.close('all')
+fig1 = plt.figure(1)
+spx = fig1.add_subplot(2, 1, 1)
+spy = fig1.add_subplot(2, 1, 2, sharex=spx)
+
+spx.plot(x_tbt)
+spy.plot(y_tbt)
+
+fig2 = plt.figure(2)
+spex = fig2.add_subplot(2, 1, 1)
+spey = fig2.add_subplot(2, 1, 2)
+
+spex.plot(x_tbt, px_tbt, '.')
+spey.plot(y_tbt, py_tbt, '.')
+
+spex.plot(0, px_cut, 'xr')
+spey.plot(0, py_cut, 'xr')
+
+plt.show()
