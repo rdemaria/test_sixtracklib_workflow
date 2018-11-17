@@ -13,12 +13,12 @@ with open('line.pkl', 'rb') as fid:
 with open('particle_on_CO.pkl', 'rb') as fid:
     partCO = pickle.load(fid)
 
-Dx_m = 1e-3
-Dpx_rad = 1e-5
-Dy_m = 2e-3
-Dpy_rad = 3e-5
+Dx_m = 1e-4
+Dpx_rad = 1e-6
+Dy_m = 2e-4
+Dpy_rad = 3e-6
 Dsigma_m = 2e-3
-Ddelta = 1e-7
+Ddelta = 0.
 
 part = pysixtrack.Particles(**partCO)
 

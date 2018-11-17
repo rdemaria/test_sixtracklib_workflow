@@ -30,7 +30,7 @@ def track_particle_sixtrack(
     lines_f3[i_start_ini + 4] = '    0.\n'
     lines_f3[i_start_ini + 5] = '    0.\n'
     lines_f3[i_start_ini + 6] = '    0.\n'
-    lines_f3[i_start_ini + 7] = '    0.\n'
+    lines_f3[i_start_ini + 7] = '    %e\n' % (Ddelta_wrt_CO)
 
     lines_f3[i_start_ini + 2 + 6] = '    %e\n' % (Dx_wrt_CO_m * 1e3)
     lines_f3[i_start_ini + 3 + 6] = '    %e\n' % (Dpx_wrt_CO_rad * 1e3)
