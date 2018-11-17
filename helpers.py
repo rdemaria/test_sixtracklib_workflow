@@ -4,8 +4,8 @@ import sixtracktools
 
 
 def track_particle_sixtrack(
-    Dx_wrt_CO_m, Dpx_wrt_CO_mrad,
-    Dy_wrt_CO_m, Dpy_wrt_CO_mrad,
+    Dx_wrt_CO_m, Dpx_wrt_CO_rad,
+    Dy_wrt_CO_m, Dpy_wrt_CO_rad,
     Dsigma_wrt_CO_m, Ddelta_wrt_CO, n_turns
 ):
     wfold = 'temp_trackfun'
@@ -33,9 +33,9 @@ def track_particle_sixtrack(
     lines_f3[i_start_ini + 7] = '    0.\n'
 
     lines_f3[i_start_ini + 2 + 6] = '    %e\n' % (Dx_wrt_CO_m * 1e3)
-    lines_f3[i_start_ini + 3 + 6] = '    %e\n' % (Dpx_wrt_CO_mrad * 1e3)
+    lines_f3[i_start_ini + 3 + 6] = '    %e\n' % (Dpx_wrt_CO_rad * 1e3)
     lines_f3[i_start_ini + 4 + 6] = '    %e\n' % (Dy_wrt_CO_m * 1e3)
-    lines_f3[i_start_ini + 5 + 6] = '    %e\n' % (Dpy_wrt_CO_mrad * 1e3)
+    lines_f3[i_start_ini + 5 + 6] = '    %e\n' % (Dpy_wrt_CO_rad * 1e3)
     lines_f3[i_start_ini + 6 + 6] = '    %e\n' % (Dsigma_wrt_CO_m * 1e3)
     lines_f3[i_start_ini + 7 + 6] = '    %e\n' % (Ddelta_wrt_CO)
 
@@ -91,15 +91,15 @@ def track_particle_pysixtrack(line, part, n_turns, verbose=False):
         if verbose:
             print('Turn %d/%d' % (i_turn, n_turns))
 
-        for name, etype, ele in line:
-            ele.track(part)
-
         x_tbt[i_turn] = part.x
         px_tbt[i_turn] = part.px
         y_tbt[i_turn] = part.y
         py_tbt[i_turn] = part.py
         sigma_tbt[i_turn] = part.sigma
         delta_tbt[i_turn] = part.delta
+
+        for name, etype, ele in line:
+            ele.track(part)
 
     return x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt
 
