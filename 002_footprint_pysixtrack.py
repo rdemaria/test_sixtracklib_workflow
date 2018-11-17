@@ -6,9 +6,9 @@ import NAFFlib
 n_turns = 100
 epsn_x = 3.5e-6
 epsn_y = 3.5e-6
-r_max_sigma = 2.
-N_r_footp = 3.
-N_theta_footp = 3.
+r_max_sigma = 5.
+N_r_footp = 5.
+N_theta_footp = 5.
 
 def track_particle(line, part, verbose=False):
 
@@ -75,7 +75,7 @@ sigmay = np.sqrt(beta_y * epsn_y / part.beta0 / part.gamma0)
 
 import footprint
 xy_norm = footprint.initial_xy_polar(r_min=1e-2, r_max=r_max_sigma, r_N=N_r_footp + 1,
-                                     theta_min=0., theta_max=np.pi / 2, theta_N=N_theta_footp)
+                                     theta_min=np.pi/100, theta_max=np.pi / 2-np.pi/100, theta_N=N_theta_footp)
 
 # Tracking for footprint
 Qxy_fp = np.zeros_like(xy_norm)
@@ -83,8 +83,10 @@ for ii in range(xy_norm.shape[0]):
     for jj in range(xy_norm.shape[1]):
         print('FP track %d/%d (%d/%d)'%(ii, xy_norm.shape[0], jj, xy_norm.shape[1]))
         part = pysixtrack.Particles(**partCO)
-        part.x += xy_norm[ii, jj, 0] * sigmax
-        part.y += xy_norm[ii, jj, 1] * sigmay
+        # part.x += xy_norm[ii, jj, 0] * sigmax
+        # part.y += xy_norm[ii, jj, 1] * sigmay
+        part.px += xy_norm[ii, jj, 0] * np.sqrt(epsn_x / part.beta0 / part.gamma0 / beta_x)
+        part.py += xy_norm[ii, jj, 1] * np.sqrt(epsn_y / part.beta0 / part.gamma0 / beta_y)
 
         x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt = track_particle(line, part)
 
@@ -122,7 +124,7 @@ axcoord.set_ylim(top=np.max(xy_norm[:, :, 1]))
 fig4 = plt.figure(4)
 axFP = fig4.add_subplot(1, 1, 1)
 footprint.draw_footprint(Qxy_fp, axis_object=axFP)
-axFP.set_xlim(right=np.max(Qxy_fp[:, :, 0]))
-axFP.set_ylim(top=np.max(Qxy_fp[:, :, 1]))
+# axFP.set_xlim(right=np.max(Qxy_fp[:, :, 0]))
+# axFP.set_ylim(top=np.max(Qxy_fp[:, :, 1]))
 
 plt.show()
