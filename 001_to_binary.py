@@ -1,4 +1,7 @@
 import pickle
+import numpy as np
+import os
+
 with open('line.pkl', 'rb') as fid:
     line = pickle.load(fid)
 
@@ -10,5 +13,14 @@ for name, etype, ele in line:
 
 elements.tofile("elements.buffer")
 
-elements.fromfile("elements.buffer")
+ps = pysixtracklib.ParticlesSet()
+p = ps.Particles(num_particles=100)
+p.particle_id = np.arange(p.num_particles)
+ps.tofile('particles.buffer')
 
+os.system('../sixtracklib/build/examples/c99/track_io_c99 particles.buffer elements.buffer')
+
+res = pysixtracklib.ParticlesSet.fromfile('output_particles.bin')
+
+# Test read
+elements.fromfile("elements.buffer")
