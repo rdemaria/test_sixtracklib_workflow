@@ -78,28 +78,57 @@ def track_particle_sixtrack(
     return x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt
 
 
-def track_particle_pysixtrack(line, part, n_turns, verbose=False):
+def track_particle_pysixtrack(line, part, Dx_wrt_CO_m, Dpx_wrt_CO_rad,
+                              Dy_wrt_CO_m, Dpy_wrt_CO_rad,
+                              Dsigma_wrt_CO_m, Ddelta_wrt_CO, n_turns, verbose=False):
 
-    x_tbt = np.zeros(n_turns)
-    px_tbt = np.zeros(n_turns)
-    y_tbt = np.zeros(n_turns)
-    py_tbt = np.zeros(n_turns)
-    sigma_tbt = np.zeros(n_turns)
-    delta_tbt = np.zeros(n_turns)
+    n_part = None
+
+    for var in [Dx_wrt_CO_m, Dpx_wrt_CO_rad,
+                Dy_wrt_CO_m, Dpy_wrt_CO_rad,
+                Dsigma_wrt_CO_m, Ddelta_wrt_CO]:
+
+        if hasattr(var, '__iter__'):
+            if n_part is None:
+                n_part = len(var)
+            assert len(var) == n_part
+
+    for var, data in zip('x px y py zeta delta'.split(),
+                         [Dx_wrt_CO_m, Dpx_wrt_CO_rad,
+                          Dy_wrt_CO_m, Dpy_wrt_CO_rad,
+                          Dsigma_wrt_CO_m, Ddelta_wrt_CO]):
+        if hasattr(data, '__iter__'):
+            setattr(part, var, getattr(part, var) + data)
+        else:
+            setattr(part, var, getattr(part, var) + (np.zeros(n_part) + data))
+
+    x_tbt = []
+    px_tbt = []
+    y_tbt = []
+    py_tbt = []
+    sigma_tbt = []
+    delta_tbt = []
 
     for i_turn in range(n_turns):
         if verbose:
             print('Turn %d/%d' % (i_turn, n_turns))
 
-        x_tbt[i_turn] = part.x
-        px_tbt[i_turn] = part.px
-        y_tbt[i_turn] = part.y
-        py_tbt[i_turn] = part.py
-        sigma_tbt[i_turn] = part.sigma
-        delta_tbt[i_turn] = part.delta
+        x_tbt.append(part.x.copy())
+        px_tbt.append(part.px.copy())
+        y_tbt.append(part.y.copy())
+        py_tbt.append(part.py.copy())
+        sigma_tbt.append(part.sigma.copy())
+        delta_tbt.append(part.delta.copy())
 
         for name, etype, ele in line:
             ele.track(part)
+
+    x_tbt = np.array(x_tbt)
+    px_tbt = np.array(px_tbt)
+    y_tbt = np.array(y_tbt)
+    py_tbt = np.array(py_tbt)
+    sigma_tbt = np.array(sigma_tbt)
+    delta_tbt = np.array(delta_tbt)
 
     return x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt
 
