@@ -15,10 +15,10 @@ elements.tofile("elements.buffer")
 
 ps = pysixtracklib.ParticlesSet()
 p = ps.Particles(num_particles=100)
-p.particle_id = np.arange(p.num_particles)
+p.set_reference(p0c=450e9)
 ps.tofile('particles.buffer')
 
-os.system('../sixtracklib/build/examples/c99/track_io_c99 particles.buffer elements.buffer')
+os.system('../sixtracklib/build/examples/c99/track_io_c99 particles.buffer elements.buffer 10 1 1 1 >run.out')
 
 res = pysixtracklib.ParticlesSet.fromfile('output_particles.bin')
 
