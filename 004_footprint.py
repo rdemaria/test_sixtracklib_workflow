@@ -29,12 +29,12 @@ if track_with == 'PySixtrack':
     part = pysixtrack.Particles(**partCO)
 
     x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt = hp.track_particle_pysixtrack(
-        line, part=part, Dx_wrt_CO_m=0., Dpx_wrt_CO_rad=DpxDpy_wrt_CO[:, :, 0],
-        Dy_wrt_CO_m=0, Dpy_wrt_CO_rad=DpxDpy_wrt_CO[:, :, 0],
+        line, part=part, Dx_wrt_CO_m=0., Dpx_wrt_CO_rad=DpxDpy_wrt_CO[:, :, 0].flatten(),
+        Dy_wrt_CO_m=0, Dpy_wrt_CO_rad=DpxDpy_wrt_CO[:, :, 1].flatten(),
         Dsigma_wrt_CO_m=0., Ddelta_wrt_CO=0., n_turns=n_turns, verbose=True)
 
 
-    prrr
+'''
 
     x_tbt = []
     px_tbt = []
@@ -74,7 +74,7 @@ if track_with == 'PySixtrack':
     py_tbt = np.array(py_tbt)
     sigma_tbt = np.array(sigma_tbt)
     delta_tbt = np.array(delta_tbt)
-
+'''
 n_part = x_tbt.shape[1]
 Qx = np.zeros(n_part)
 Qy = np.zeros(n_part)
@@ -115,6 +115,7 @@ for ii in range(xy_norm.shape[0]):
         Qxy_fp[ii, jj, 0] = qx
         Qxy_fp[ii, jj, 1] = qy
 """
+plt.close('all')
 
 fig3 = plt.figure(3)
 axcoord = fig3.add_subplot(1, 1, 1)

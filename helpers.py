@@ -93,16 +93,14 @@ def track_particle_pysixtrack(line, part, Dx_wrt_CO_m, Dpx_wrt_CO_rad,
                 n_part = len(var)
             assert len(var) == n_part
 
-
     for var, data in zip('x px y py zeta delta'.split(),
                          [Dx_wrt_CO_m, Dpx_wrt_CO_rad,
                           Dy_wrt_CO_m, Dpy_wrt_CO_rad,
                           Dsigma_wrt_CO_m, Ddelta_wrt_CO]):
-        if hasattr(var, '__iter__'):
-            #part[var] += data
+        if hasattr(data, '__iter__'):
             setattr(part, var, getattr(part, var) + data)
         else:
-            part[var] += (np.zeros(n_part) + data)
+            setattr(part, var, getattr(part, var) + (np.zeros(n_part) + data))
 
     x_tbt = []
     px_tbt = []
