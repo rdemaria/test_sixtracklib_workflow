@@ -7,24 +7,25 @@ def vectorize_all_coords(Dx_wrt_CO_m, Dpx_wrt_CO_rad,
                          Dy_wrt_CO_m, Dpy_wrt_CO_rad,
                          Dsigma_wrt_CO_m, Ddelta_wrt_CO):
 
-    n_part = None
+    n_part = 1
     for var in [Dx_wrt_CO_m, Dpx_wrt_CO_rad,
                 Dy_wrt_CO_m, Dpy_wrt_CO_rad,
                 Dsigma_wrt_CO_m, Ddelta_wrt_CO]:
         if hasattr(var, '__iter__'):
-            if n_part is None:
+            if n_part == 1:
                 n_part = len(var)
             assert len(var) == n_part
 
-    for var in [Dx_wrt_CO_m, Dpx_wrt_CO_rad,
-                Dy_wrt_CO_m, Dpy_wrt_CO_rad,
-                Dsigma_wrt_CO_m, Ddelta_wrt_CO]:
-        if not hasattr(var, '__iter__'):
-            var += np.zeros(n_part)
+    Dx_wrt_CO_m = Dx_wrt_CO_m + np.zeros(n_part)
+    Dpx_wrt_CO_rad = Dpx_wrt_CO_rad + np.zeros(n_part)
+    Dy_wrt_CO_m = Dy_wrt_CO_m + np.zeros(n_part)
+    Dpy_wrt_CO_rad = Dpy_wrt_CO_rad + np.zeros(n_part)
+    Dsigma_wrt_CO_m = Dsigma_wrt_CO_m + np.zeros(n_part)
+    Ddelta_wrt_CO = Ddelta_wrt_CO + np.zeros(n_part)
 
-    return Dx_wrt_CO_m[:], Dpx_wrt_CO_rad[:],\
-           Dy_wrt_CO_m[:], Dpy_wrt_CO_rad[:],\
-           Dsigma_wrt_CO_m[:;;], Ddelta_wrt_CO[:]
+    return Dx_wrt_CO_m, Dpx_wrt_CO_rad,\
+     Dy_wrt_CO_m, Dpy_wrt_CO_rad,\
+     Dsigma_wrt_CO_m, Ddelta_wrt_CO
 
 
 
@@ -107,25 +108,19 @@ def track_particle_pysixtrack(line, part, Dx_wrt_CO_m, Dpx_wrt_CO_rad,
                               Dy_wrt_CO_m, Dpy_wrt_CO_rad,
                               Dsigma_wrt_CO_m, Ddelta_wrt_CO, n_turns, verbose=False):
 
-    n_part = None
-
-    for var in [Dx_wrt_CO_m, Dpx_wrt_CO_rad,
-                Dy_wrt_CO_m, Dpy_wrt_CO_rad,
-                Dsigma_wrt_CO_m, Ddelta_wrt_CO]:
-
-        if hasattr(var, '__iter__'):
-            if n_part is None:
-                n_part = len(var)
-            assert len(var) == n_part
-
-    for var, data in zip('x px y py zeta delta'.split(),
-                         [Dx_wrt_CO_m, Dpx_wrt_CO_rad,
-                          Dy_wrt_CO_m, Dpy_wrt_CO_rad,
-                          Dsigma_wrt_CO_m, Ddelta_wrt_CO]):
-        if hasattr(data, '__iter__'):
-            setattr(part, var, getattr(part, var) + data)
-        else:
-            setattr(part, var, getattr(part, var) + (np.zeros(n_part) + data))
+    Dx_wrt_CO_m, Dpx_wrt_CO_rad,\
+        Dy_wrt_CO_m, Dpy_wrt_CO_rad,\
+        Dsigma_wrt_CO_m, Ddelta_wrt_CO = vectorize_all_coords(
+                             Dx_wrt_CO_m, Dpx_wrt_CO_rad,
+                             Dy_wrt_CO_m, Dpy_wrt_CO_rad,
+                             Dsigma_wrt_CO_m, Ddelta_wrt_CO)
+        
+    part.x += Dx_wrt_CO_m
+    part.px += Dpx_wrt_CO_rad
+    part.y += Dy_wrt_CO_m
+    part.py += Dpy_wrt_CO_rad
+    part.sigma += Dsigma_wrt_CO_m
+    part.delta += Ddelta_wrt_CO
 
     x_tbt = []
     px_tbt = []
