@@ -3,6 +3,31 @@ import os
 import sixtracktools
 
 
+def vectorize_all_coords(Dx_wrt_CO_m, Dpx_wrt_CO_rad,
+                         Dy_wrt_CO_m, Dpy_wrt_CO_rad,
+                         Dsigma_wrt_CO_m, Ddelta_wrt_CO):
+
+    n_part = None
+    for var in [Dx_wrt_CO_m, Dpx_wrt_CO_rad,
+                Dy_wrt_CO_m, Dpy_wrt_CO_rad,
+                Dsigma_wrt_CO_m, Ddelta_wrt_CO]:
+        if hasattr(var, '__iter__'):
+            if n_part is None:
+                n_part = len(var)
+            assert len(var) == n_part
+
+    for var in [Dx_wrt_CO_m, Dpx_wrt_CO_rad,
+                Dy_wrt_CO_m, Dpy_wrt_CO_rad,
+                Dsigma_wrt_CO_m, Ddelta_wrt_CO]:
+        if not hasattr(var, '__iter__'):
+            var += np.zeros(n_part)
+
+    return Dx_wrt_CO_m[:], Dpx_wrt_CO_rad[:],\
+           Dy_wrt_CO_m[:], Dpy_wrt_CO_rad[:],\
+           Dsigma_wrt_CO_m[:;;], Ddelta_wrt_CO[:]
+
+
+
 def track_particle_sixtrack(
     Dx_wrt_CO_m, Dpx_wrt_CO_rad,
     Dy_wrt_CO_m, Dpy_wrt_CO_rad,

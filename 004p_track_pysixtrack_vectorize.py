@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 track_with = 'PySixtrack'
 track_with = 'Sixtrack'
 
-n_turns = 100
+n_turns = 3
 
 with open('line.pkl', 'rb') as fid:
     line = pickle.load(fid)
@@ -23,6 +23,7 @@ with open('DpxDpy_for_footprint.pkl', 'rb') as fid:
 xy_norm = temp_data['xy_norm']
 DpxDpy_wrt_CO = temp_data['DpxDpy_wrt_CO']
 
+### PySixtracK
 
 part = pysixtrack.Particles(**partCO)
 
