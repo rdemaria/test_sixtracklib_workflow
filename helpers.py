@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import sixtracktools
+import pysixtrack
 
 
 def vectorize_all_coords(Dx_wrt_CO_m, Dpx_wrt_CO_rad,
@@ -28,12 +29,21 @@ def vectorize_all_coords(Dx_wrt_CO_m, Dpx_wrt_CO_rad,
      Dsigma_wrt_CO_m, Ddelta_wrt_CO
 
 
-
 def track_particle_sixtrack(
-    Dx_wrt_CO_m, Dpx_wrt_CO_rad,
-    Dy_wrt_CO_m, Dpy_wrt_CO_rad,
-    Dsigma_wrt_CO_m, Ddelta_wrt_CO, n_turns
-):
+                            partCO, Dx_wrt_CO_m, Dpx_wrt_CO_rad,
+                            Dy_wrt_CO_m, Dpy_wrt_CO_rad,
+                            Dsigma_wrt_CO_m, Ddelta_wrt_CO, n_turns
+                            ):
+
+    Dx_wrt_CO_m, Dpx_wrt_CO_rad,\
+    Dy_wrt_CO_m, Dpy_wrt_CO_rad,\
+    Dsigma_wrt_CO_m, Ddelta_wrt_CO = vectorize_all_coords(
+                         Dx_wrt_CO_m, Dpx_wrt_CO_rad,
+                         Dy_wrt_CO_m, Dpy_wrt_CO_rad,
+                         Dsigma_wrt_CO_m, Ddelta_wrt_CO)
+
+    n_part = len(Dx_wrt_CO_m)
+
     wfold = 'temp_trackfun'
 
     if not os.path.exists(wfold):
@@ -56,24 +66,51 @@ def track_particle_sixtrack(
     lines_f3[i_start_ini + 4] = '    0.\n'
     lines_f3[i_start_ini + 5] = '    0.\n'
     lines_f3[i_start_ini + 6] = '    0.\n'
-    lines_f3[i_start_ini + 7] = '    %e\n' % (Ddelta_wrt_CO)
+    lines_f3[i_start_ini + 7] = '    0.\n'
 
-    lines_f3[i_start_ini + 2 + 6] = '    %e\n' % (Dx_wrt_CO_m * 1e3)
-    lines_f3[i_start_ini + 3 + 6] = '    %e\n' % (Dpx_wrt_CO_rad * 1e3)
-    lines_f3[i_start_ini + 4 + 6] = '    %e\n' % (Dy_wrt_CO_m * 1e3)
-    lines_f3[i_start_ini + 5 + 6] = '    %e\n' % (Dpy_wrt_CO_rad * 1e3)
-    lines_f3[i_start_ini + 6 + 6] = '    %e\n' % (Dsigma_wrt_CO_m * 1e3)
-    lines_f3[i_start_ini + 7 + 6] = '    %e\n' % (Ddelta_wrt_CO)
+    lines_f3[i_start_ini + 2 + 6] = '    0.\n'
+    lines_f3[i_start_ini + 3 + 6] = '    0.\n'
+    lines_f3[i_start_ini + 4 + 6] = '    0.\n'
+    lines_f3[i_start_ini + 5 + 6] = '    0.\n'
+    lines_f3[i_start_ini + 6 + 6] = '    0.\n'
+    lines_f3[i_start_ini + 7 + 6] = '    0.\n'
 
-    # Set number of turns
+    lines_f13 = []
+
+    temp_part = pysixtrack.Particles(**partCO)
+
+    for i_part in range(n_part):
+        lines_f13.append('%e\n' % ((Dx_wrt_CO_m[i_part] + temp_part.x) * 1e3))
+        lines_f13.append('%e\n' % ((Dpx_wrt_CO_rad[i_part] + temp_part.px) * temp_part.rpp * 1e3))
+        lines_f13.append('%e\n' % ((Dy_wrt_CO_m[i_part] + temp_part.y) * 1e3))
+        lines_f13.append('%e\n' % ((Dpy_wrt_CO_rad[i_part] + temp_part.py) * temp_part.rpp * 1e3))
+        lines_f13.append('%e\n' % ((Dsigma_wrt_CO_m[i_part] + temp_part.sigma) * 1e3))
+        lines_f13.append('%e\n' % ((Ddelta_wrt_CO[i_part] + temp_part.delta)))
+        if i_part % 2 == 1:
+            lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 1].replace(' ', ''))
+            lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 2].replace(' ', ''))
+            lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 3].replace(' ', ''))
+
+    with open(wfold + '/fort.13', 'w') as fid:
+        fid.writelines(lines_f13)
+
+    if np.mod(n_part, 2) != 0:
+        raise ValueError('SixTrack does not like this!')
+
     i_start_tk = None
     for ii, ll in enumerate(lines_f3):
         if ll.startswith('TRACKING PAR'):
             i_start_tk = ii
             break
+    # Set number of turns and number of particles
     temp_list = lines_f3[i_start_tk + 1].split(' ')
     temp_list[0] = '%d' % n_turns
+    temp_list[2] = '%d' % (n_part / 2)
     lines_f3[i_start_tk + 1] = ' '.join(temp_list)
+    # Set number of idfor = 2
+    temp_list = lines_f3[i_start_tk + 2].split(' ')
+    temp_list[2] = '2'
+    lines_f3[i_start_tk + 2] = ' '.join(temp_list)
 
     # Setup turn-by-turn dump
     i_start_dp = None
@@ -92,14 +129,21 @@ def track_particle_sixtrack(
     # Load sixtrack tracking data
     sixdump_all = sixtracktools.SixDump101('%s/dumtemp.dat' % wfold)
 
-    sixdump_part = sixdump_all[1::2]  #
+    x_tbt = np.zeros((n_turns, n_part))
+    px_tbt = np.zeros((n_turns, n_part))
+    y_tbt = np.zeros((n_turns, n_part))
+    py_tbt = np.zeros((n_turns, n_part))
+    sigma_tbt = np.zeros((n_turns, n_part))
+    delta_tbt = np.zeros((n_turns, n_part))
 
-    x_tbt = sixdump_part.x
-    px_tbt = sixdump_part.px
-    y_tbt = sixdump_part.y
-    py_tbt = sixdump_part.py
-    sigma_tbt = sixdump_part.sigma
-    delta_tbt = sixdump_part.delta
+    for i_part in range(n_part):
+        sixdump_part = sixdump_all[i_part::n_part]
+        x_tbt[:, i_part] = sixdump_part.x
+        px_tbt[:, i_part] = sixdump_part.px
+        y_tbt[:, i_part] = sixdump_part.y
+        py_tbt[:, i_part] = sixdump_part.py
+        sigma_tbt[:, i_part] = sixdump_part.sigma
+        delta_tbt[:, i_part] = sixdump_part.delta
 
     return x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt
 
@@ -114,7 +158,7 @@ def track_particle_pysixtrack(line, part, Dx_wrt_CO_m, Dpx_wrt_CO_rad,
                              Dx_wrt_CO_m, Dpx_wrt_CO_rad,
                              Dy_wrt_CO_m, Dpy_wrt_CO_rad,
                              Dsigma_wrt_CO_m, Ddelta_wrt_CO)
-        
+
     part.x += Dx_wrt_CO_m
     part.px += Dpx_wrt_CO_rad
     part.y += Dy_wrt_CO_m
