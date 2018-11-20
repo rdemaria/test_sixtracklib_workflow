@@ -82,16 +82,16 @@ lines_f13 = []
 temp_part = pysixtrack.Particles(**partCO)
 
 for i_part in range(n_part):
-    lines_f13.append('    %e\n' % ((Dx_wrt_CO_m[i_part] + temp_part.x) * 1e3))
-    lines_f13.append('    %e\n' % ((Dpx_wrt_CO_rad[i_part] + temp_part.px) * 1e3))
-    lines_f13.append('    %e\n' % ((Dy_wrt_CO_m[i_part] + temp_part.y) * 1e3))
-    lines_f13.append('    %e\n' % ((Dpy_wrt_CO_rad[i_part] + temp_part.py) * 1e3))
-    lines_f13.append('    %e\n' % ((Dsigma_wrt_CO_m[i_part] + temp_part.sigma) * 1e3))
-    lines_f13.append('    %e\n' % ((Ddelta_wrt_CO[i_part] + temp_part.delta)))
+    lines_f13.append('%e\n' % ((Dx_wrt_CO_m[i_part] + temp_part.x) * 1e3))
+    lines_f13.append('%e\n' % ((Dpx_wrt_CO_rad[i_part] + temp_part.px) * temp_part.rpp * 1e3))
+    lines_f13.append('%e\n' % ((Dy_wrt_CO_m[i_part] + temp_part.y) * 1e3))
+    lines_f13.append('%e\n' % ((Dpy_wrt_CO_rad[i_part] + temp_part.py) * temp_part.rpp * 1e3))
+    lines_f13.append('%e\n' % ((Dsigma_wrt_CO_m[i_part] + temp_part.sigma) * 1e3))
+    lines_f13.append('%e\n' % ((Ddelta_wrt_CO[i_part] + temp_part.delta)))
     if i_part % 2 == 1:
-        lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 1])
-        lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 2])
-        lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 3])
+        lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 1].replace(' ', ''))
+        lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 2].replace(' ', ''))
+        lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 3].replace(' ', ''))
 
 with open(wfold + '/fort.13', 'w') as fid:
     fid.writelines(lines_f13)
@@ -107,7 +107,7 @@ for ii, ll in enumerate(lines_f3):
 # Set number of turns and number of particles
 temp_list = lines_f3[i_start_tk + 1].split(' ')
 temp_list[0] = '%d' % n_turns
-temp_list[2] = '%d' % (n_part)
+temp_list[2] = '%d' % (n_part / 2)
 lines_f3[i_start_tk + 1] = ' '.join(temp_list)
 # Set number of idfor = 2
 temp_list = lines_f3[i_start_tk + 2].split(' ')
@@ -125,8 +125,25 @@ lines_f3[i_start_dp + 1] = 'StartDUMP 1 664 101 dumtemp.dat\n'
 
 with open(wfold + '/fort.3', 'w') as fid:
     fid.writelines(lines_f3)
-prrrr
+
 os.system('./runsix_trackfun')
 
 # Load sixtrack tracking data
 sixdump_all = sixtracktools.SixDump101('%s/dumtemp.dat' % wfold)
+
+
+x_tbt = np.zeros((n_turns, n_part))
+px_tbt = np.zeros((n_turns, n_part))
+y_tbt = np.zeros((n_turns, n_part))
+py_tbt = np.zeros((n_turns, n_part))
+sigma_tbt = np.zeros((n_turns, n_part))
+delta_tbt = np.zeros((n_turns, n_part))
+
+for i_part in range(n_part):
+    sixdump_part = sixdump_all[i_part::n_part]
+    x_tbt[:, i_part] = sixdump_part.x
+    px_tbt[:, i_part] = sixdump_part.px
+    y_tbt[:, i_part] = sixdump_part.y
+    py_tbt[:, i_part] = sixdump_part.py
+    sigma_tbt[:, i_part] = sixdump_part.sigma
+    delta_tbt[:, i_part] = sixdump_part.delta
