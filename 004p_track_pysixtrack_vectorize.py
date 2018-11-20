@@ -82,6 +82,10 @@ lines_f13 = []
 temp_part = pysixtrack.Particles(**partCO)
 
 for i_part in range(n_part):
+
+    if Ddelta_wrt_CO[i_part] != 0.:
+        raise ValueError('Not implemented!')
+
     lines_f13.append('%e\n' % ((Dx_wrt_CO_m[i_part] + temp_part.x) * 1e3))
     lines_f13.append('%e\n' % ((Dpx_wrt_CO_rad[i_part] + temp_part.px) * temp_part.rpp * 1e3))
     lines_f13.append('%e\n' % ((Dy_wrt_CO_m[i_part] + temp_part.y) * 1e3))
@@ -90,8 +94,8 @@ for i_part in range(n_part):
     lines_f13.append('%e\n' % ((Ddelta_wrt_CO[i_part] + temp_part.delta)))
     if i_part % 2 == 1:
         lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 1].replace(' ', ''))
-        lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 2].replace(' ', ''))
-        lines_f13.append(lines_f3[i_start_ini + 7 + 6 + 3].replace(' ', ''))
+        lines_f13.append('%e\n' % (temp_part.Energy * 1e-6))
+        lines_f13.append('%e\n' % (temp_part.Energy * 1e-6))
 
 with open(wfold + '/fort.13', 'w') as fid:
     fid.writelines(lines_f13)
