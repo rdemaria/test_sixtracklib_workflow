@@ -7,7 +7,7 @@ import footprint
 import matplotlib.pyplot as plt
 
 track_with = 'PySixtrack'
-track_with = 'Sixtrack'
+# track_with = 'Sixtrack'
 
 n_turns = 100
 
@@ -68,5 +68,5 @@ axFP = fig4.add_subplot(1, 1, 1)
 footprint.draw_footprint(Qxy_fp, axis_object=axFP)
 # axFP.set_xlim(right=np.max(Qxy_fp[:, :, 0]))
 # axFP.set_ylim(top=np.max(Qxy_fp[:, :, 1]))
-
+fig4.suptitle(track_with)
 plt.show()

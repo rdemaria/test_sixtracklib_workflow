@@ -8,7 +8,7 @@ import footprint
 
 epsn_x = 3.5e-6
 epsn_y = 3.5e-6
-r_max_sigma = 10.
+r_max_sigma = 5.
 N_r_footp = 10.
 N_theta_footp = 10.
 n_turns_beta = 150
@@ -26,7 +26,11 @@ part = pysixtrack.Particles(**partCO)
 part.x += 1e-5
 part.y += 1e-5
 
-x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt = hp.track_particle(line, part, n_turns_beta, verbose=True)
+x_tbt, px_tbt, y_tbt, py_tbt, sigma_tbt, delta_tbt = hp.track_particle_pysixtrack(
+    line, part=part, Dx_wrt_CO_m=0., Dpx_wrt_CO_rad=0.,
+    Dy_wrt_CO_m=0., Dpy_wrt_CO_rad=0.,
+    Dsigma_wrt_CO_m=0., Ddelta_wrt_CO=0., n_turns=n_turns_beta, verbose=True)
+
 
 beta_x, x_max, px_cut = hp.betafun_from_ellip(x_tbt, px_tbt)
 beta_y, y_max, py_cut = hp.betafun_from_ellip(y_tbt, py_tbt)
