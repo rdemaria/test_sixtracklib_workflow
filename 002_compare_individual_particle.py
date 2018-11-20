@@ -2,7 +2,6 @@ import pickle
 import pysixtrack
 import numpy as np
 import helpers as hp
-import footprint
 import matplotlib.pyplot as plt
 
 n_turns = 100
